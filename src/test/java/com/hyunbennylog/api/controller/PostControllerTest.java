@@ -23,12 +23,28 @@ class PostControllerTest {
 
     @Test
     @DisplayName("/posts 요청시 Hello World출력")
-    void test() throws Exception {
+    void test1() throws Exception {
         mockMvc.perform(post("/posts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"제목\", \"content\":\"내용입니다..\"}"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Hello World"))
+                .andExpect(content().string("{}"))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("/posts 요청시 title값은 필수")
+    void test2() throws Exception {
+        mockMvc.perform(post("/posts")
+                .contentType(MediaType.APPLICATION_JSON)
+//                .content("{\"title\":\"\", \"content\":\"내용입니다..\"}"))
+                .content("{\"title\":null, \"content\":\"내용입니다..\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("제목은 필수값입니다."))
+                /**
+                 *jsonPath 찾아보기
+                 */
                 .andDo(print());
 
     }
