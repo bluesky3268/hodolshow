@@ -1,6 +1,6 @@
 package com.hyunbennylog.api.controller;
 
-import com.hyunbennylog.api.controller.request.PostCreate;
+import com.hyunbennylog.api.request.PostCreate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -27,7 +27,7 @@ public class PostController {
 
     @PostMapping("/posts")
 //    public String post(@RequestParam Map<String, String> params) {
-    public Map<String, String> post(@RequestBody @Valid PostCreate params, BindingResult bindingResult) {
+    public Map<String, String> post(@RequestBody @Valid PostCreate params) {
         // 데이터 검증 이유
         // 1. 클라이언트에서 실수로 값을 안보내거나 잘못된 값을 보낼 수 있음
         // 2. 버그로 인해 값이 누락될 수있음
@@ -35,17 +35,17 @@ public class PostController {
         // 4. DB에 저장할 때 의도치 않은 오류가 발생할 수 있음
 
         log.info("params : {}", params.toString());
-        if (bindingResult.hasErrors()) {
-            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-            FieldError firstFieldError = fieldErrors.get(0);
-            String fieldName = firstFieldError.getField();
-            String errorMessage = firstFieldError.getDefaultMessage();
-
-            Map<String, String> error = new HashMap<>();
-            error.put(fieldName, errorMessage);
-            log.info("fieldName : {}, errorMessage : {}", fieldName, errorMessage);
-            return error;
-        }
+//        if (bindingResult.hasErrors()) {
+//            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+//            FieldError firstFieldError = fieldErrors.get(0);
+//            String fieldName = firstFieldError.getField();
+//            String errorMessage = firstFieldError.getDefaultMessage();
+//
+//            Map<String, String> error = new HashMap<>();
+//            error.put(fieldName, errorMessage);
+//            log.info("fieldName : {}, errorMessage : {}", fieldName, errorMessage);
+//            return error;
+//        }
 
         return Map.of();
     }
