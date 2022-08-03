@@ -1,5 +1,6 @@
 package com.hyunbennylog.api.request;
 
+import com.hyunbennylog.api.domain.Post;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,5 +16,12 @@ public class PostCreate {
 
     @NotBlank(message = "{postCreate.content.notNull}")
     private String content;
+
+    public Post toEntity() {
+        return Post.builder()
+                .title(title)
+                .content(content)
+                .build();
+    }
 
 }

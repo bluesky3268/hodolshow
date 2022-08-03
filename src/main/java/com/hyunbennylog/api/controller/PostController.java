@@ -1,6 +1,8 @@
 package com.hyunbennylog.api.controller;
 
 import com.hyunbennylog.api.request.PostCreate;
+import com.hyunbennylog.api.service.PostService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -21,20 +23,22 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class PostController {
-
     // HTTP METHOD : GET, POST, PUT, PATCH, DELETE, CONNECT, OPTIONS, TRACE
+
+    private final PostService postService;
 
     @PostMapping("/posts")
 //    public String post(@RequestParam Map<String, String> params) {
-    public Map<String, String> post(@RequestBody @Valid PostCreate params) {
+    public Map<String, String> post(@RequestBody @Valid PostCreate request) {
         // 데이터 검증 이유
         // 1. 클라이언트에서 실수로 값을 안보내거나 잘못된 값을 보낼 수 있음
         // 2. 버그로 인해 값이 누락될 수있음
         // 3. 해킹하여 값을 조작하여 보낼 수 있음
         // 4. DB에 저장할 때 의도치 않은 오류가 발생할 수 있음
 
-        log.info("params : {}", params.toString());
+        log.info("params : {}", request.toString());
 //        if (bindingResult.hasErrors()) {
 //            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
 //            FieldError firstFieldError = fieldErrors.get(0);
@@ -46,7 +50,7 @@ public class PostController {
 //            log.info("fieldName : {}, errorMessage : {}", fieldName, errorMessage);
 //            return error;
 //        }
-
+        postService.regist(request);
         return Map.of();
     }
 
