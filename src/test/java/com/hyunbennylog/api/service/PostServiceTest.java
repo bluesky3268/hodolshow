@@ -3,12 +3,16 @@ package com.hyunbennylog.api.service;
 import com.hyunbennylog.api.domain.Post;
 import com.hyunbennylog.api.repository.PostRepository;
 import com.hyunbennylog.api.request.PostCreate;
+import com.hyunbennylog.api.response.PostResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,21 +56,44 @@ class PostServiceTest {
     void findPost() {
         // given
         Post request = Post.builder()
-                .title("POST TITLE")
+                .title("POST_TITLE1234567890")
                 .content("POST CONTENT")
                 .build();
 
         postRepository.save(request);
 
-        Long postId = 1L;
-
         // when
-        Post post = postService.findPost(request.getId());
+        PostResponse response = postService.getPost(request.getId());
 
         // then
-        assertNotNull(post);
-        assertEquals("POST TITLE", request.getTitle());
-        assertEquals("POST CONTENT", request.getContent());
+        assertNotNull(response);
+        assertEquals("POST TITLE", response.getTitle());
+        assertEquals("POST CONTENT", response.getContent());
     }
 
+
+    @Test
+    @DisplayName("글 목록 조회")
+    void getPostList() {
+        // given
+        Post request1 = Post.builder()
+                .title("title1")
+                .content("content1")
+                .build();
+
+        Post request2 = Post.builder()
+                .title("title2")
+                .content("content2")
+                .build();
+
+        postRepository.saveAll(List.of(request1, request2));
+
+        // when
+        List<PostResponse> postList = postRepository.findAll().stream()
+                .map(post -> new PostResponse().entityToPostResponse(post))
+                .collect(Collectors.toList());
+
+        // then
+        assertEquals(2, postList.size());
+    }
 }

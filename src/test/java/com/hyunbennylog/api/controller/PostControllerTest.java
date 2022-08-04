@@ -5,6 +5,7 @@ import com.hyunbennylog.api.domain.Post;
 import com.hyunbennylog.api.repository.PostRepository;
 import com.hyunbennylog.api.request.PostCreate;
 import com.hyunbennylog.api.service.PostService;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +16,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -126,7 +129,7 @@ class PostControllerTest {
     void findPost() throws Exception {
         // given
         Post request = Post.builder()
-                .title("게시글 제목")
+                .title("게시글제목1234567890")
                 .content("게시글 내용")
                 .build();
 
@@ -137,10 +140,41 @@ class PostControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(request.getId()))
-                .andExpect(jsonPath("$.title").value("게시글 제목"))
+                .andExpect(jsonPath("$.title").value("게시글제목"))
                 .andExpect(jsonPath("$.content").value("게시글 내용"))
                 .andDo(print())
         ;
+    }
+
+
+    @Test
+    @DisplayName("게시글 목록 조회")
+    void getPostList() throws Exception {
+        // given
+        Post post1 = Post.builder()
+                .title("1234567890")
+                .content("content1")
+                .build();
+
+        Post post2 = Post.builder()
+                .title("abcdefghijklmn")
+                .content("content2")
+                .build();
+
+        postRepository.saveAll(List.of(post1, post2));
+
+        // expected
+        mockMvc.perform(get("/posts")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", Matchers.is(2)))
+                .andExpect(jsonPath("$.[0].title").value("12345"))
+                .andExpect(jsonPath("$.[0].content").value("content1"))
+                .andExpect(jsonPath("$.[1].title").value("abcde"))
+                .andExpect(jsonPath("$.[1].content").value("content2"))
+                .andDo(print())
+        ;
+
     }
 
 }

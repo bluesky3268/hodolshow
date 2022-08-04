@@ -2,6 +2,7 @@ package com.hyunbennylog.api.controller;
 
 import com.hyunbennylog.api.domain.Post;
 import com.hyunbennylog.api.request.PostCreate;
+import com.hyunbennylog.api.response.PostResponse;
 import com.hyunbennylog.api.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ public class PostController {
 
     private final PostService postService;
 
+    // 게시글 등록
     @PostMapping("/posts")
     public void post(@RequestBody @Valid PostCreate request) {
         // 데이터 검증 이유
@@ -63,10 +65,16 @@ public class PostController {
 
     }
 
+    // 단건 조회
     @GetMapping("/posts/{postId}")
-    public Post getPost(@PathVariable Long postId) {
-        Post post = postService.findPost(postId);
-        return post;
+    public PostResponse getPost(@PathVariable Long postId) {
+       return postService.getPost(postId);
+    }
+
+    // 리스트 조회
+    @GetMapping("/posts")
+    public List<PostResponse> getPostList() {
+        return postService.getPostList();
     }
 
 }

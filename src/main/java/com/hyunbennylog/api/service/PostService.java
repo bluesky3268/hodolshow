@@ -3,11 +3,13 @@ package com.hyunbennylog.api.service;
 import com.hyunbennylog.api.domain.Post;
 import com.hyunbennylog.api.repository.PostRepository;
 import com.hyunbennylog.api.request.PostCreate;
+import com.hyunbennylog.api.response.PostResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -20,11 +22,16 @@ public class PostService {
         postRepository.save(postCreate.toEntity());
     }
 
-    public Post findPost(Long postId) {
+    public PostResponse getPost(Long postId) {
         Post findPost = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("해당글은 존재하지 않습니다."));
 
-        return findPost;
+        return new PostResponse().entityToPostResponse(findPost);
+    }
+
+    public List<PostResponse> getPostList() {
+        return postRepository.findAll().stream().map(post -> new PostResponse().entityToPostResponse(post))
+                .collect(Collectors.toList());
 
     }
 
