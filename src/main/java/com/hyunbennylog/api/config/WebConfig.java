@@ -1,4 +1,4 @@
-package com.hyunbennylog.api;
+package com.hyunbennylog.api.config;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
