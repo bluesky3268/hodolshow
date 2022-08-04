@@ -6,6 +6,8 @@ import com.hyunbennylog.api.response.PostResponse;
 import com.hyunbennylog.api.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -73,8 +75,11 @@ public class PostController {
 
     // 리스트 조회
     @GetMapping("/posts")
-    public List<PostResponse> getPostList() {
-        return postService.getPostList();
+    public List<PostResponse> getPostList(Pageable pageable) {
+        // size를 parameter로 넘겨받아도 되고
+        // yml에 기본설정값을 세팅해놔도 되고
+        // @PageableDefault(size=5) 이런식으로도 사용가능
+        return postService.getPostList(pageable);
     }
 
 }

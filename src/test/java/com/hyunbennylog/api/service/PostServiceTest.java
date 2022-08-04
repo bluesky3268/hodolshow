@@ -10,9 +10,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -71,29 +75,27 @@ class PostServiceTest {
         assertEquals("POST CONTENT", response.getContent());
     }
 
-
     @Test
-    @DisplayName("글 목록 조회")
-    void getPostList() {
+    @DisplayName("글 목록 페이징 조회")
+    void getPostListWithPaging() {
         // given
-        Post request1 = Post.builder()
-                .title("title1")
-                .content("content1")
-                .build();
-
-        Post request2 = Post.builder()
-                .title("title2")
-                .content("content2")
-                .build();
-
-        postRepository.saveAll(List.of(request1, request2));
-
-        // when
-        List<PostResponse> postList = postRepository.findAll().stream()
-                .map(post -> new PostResponse().entityToPostResponse(post))
+        List<Post> requestPosts = IntStream.range(1, 31)
+                .mapToObj(i -> Post.builder()
+                            .title("제목" + i)
+                            .content("게시글 내용 - " + i)
+                            .build())
                 .collect(Collectors.toList());
 
+        postRepository.saveAll(requestPosts);
+
+        Pageable pageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"));
+
+        // when
+        List<PostResponse> postList = postService.getPostList(pageable);
+
         // then
-        assertEquals(2, postList.size());
+        assertEquals(5, postList.size());
+        assertEquals("제목30", postList.get(0).getTitle());
+        assertEquals("제목26", postList.get(4).getTitle());
     }
 }

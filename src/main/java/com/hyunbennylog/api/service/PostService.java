@@ -6,6 +6,9 @@ import com.hyunbennylog.api.request.PostCreate;
 import com.hyunbennylog.api.response.PostResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,8 +32,10 @@ public class PostService {
         return new PostResponse().entityToPostResponse(findPost);
     }
 
-    public List<PostResponse> getPostList() {
-        return postRepository.findAll().stream().map(post -> new PostResponse().entityToPostResponse(post))
+    public List<PostResponse> getPostList(Pageable pageable) {
+//        Pageable pageable = PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "id"));
+
+        return postRepository.findAll(pageable).stream().map(post -> new PostResponse().entityToPostResponse(post))
                 .collect(Collectors.toList());
 
     }
