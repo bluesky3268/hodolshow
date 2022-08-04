@@ -1,5 +1,6 @@
 package com.hyunbennylog.api.controller;
 
+import com.hyunbennylog.api.domain.Post;
 import com.hyunbennylog.api.request.PostCreate;
 import com.hyunbennylog.api.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -30,15 +31,13 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("/posts")
-//    public String post(@RequestParam Map<String, String> params) {
-    public Map<String, String> post(@RequestBody @Valid PostCreate request) {
+    public void post(@RequestBody @Valid PostCreate request) {
         // 데이터 검증 이유
         // 1. 클라이언트에서 실수로 값을 안보내거나 잘못된 값을 보낼 수 있음
         // 2. 버그로 인해 값이 누락될 수있음
         // 3. 해킹하여 값을 조작하여 보낼 수 있음
         // 4. DB에 저장할 때 의도치 않은 오류가 발생할 수 있음
 
-        log.info("params : {}", request.toString());
 //        if (bindingResult.hasErrors()) {
 //            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
 //            FieldError firstFieldError = fieldErrors.get(0);
@@ -50,8 +49,24 @@ public class PostController {
 //            log.info("fieldName : {}, errorMessage : {}", fieldName, errorMessage);
 //            return error;
 //        }
+
         postService.regist(request);
-        return Map.of();
+        /** POST요청에 대한 응답
+           1. 은 200, 201을 주로 사용함.
+           2-1. 클라이언트의 요청에 의해 저장한 데이터를 그대로 주는 경우,
+           2-2. 저장한 데이터의 PK만 주는 경우도 있음 -> PK만 받는 경우 조회 API를 다시 호출하여 데이터를 받음
+           3. 응답 필요없음 -> 게시글 작성 후 목록으로 이동하는 경우
+         
+           안좋은 경우 
+            -> '서버에서는 무조건 이렇게 내려줌' -> 다양한 요구사항에 대해 유연하게 개발해야 함
+        */
+
+    }
+
+    @GetMapping("/posts/{postId}")
+    public Post getPost(@PathVariable Long postId) {
+        Post post = postService.findPost(postId);
+        return post;
     }
 
 }
