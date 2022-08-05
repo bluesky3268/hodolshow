@@ -11,10 +11,10 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class PostCreate {
 
-    @NotBlank(message = "{postCreate.title.notNull}")
+    @NotBlank(message = "{title.notNull}")
     private String title;
 
-    @NotBlank(message = "{postCreate.content.notNull}")
+    @NotBlank(message = "{content.notNull}")
     private String content;
 
 

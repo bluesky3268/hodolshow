@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyunbennylog.api.domain.Post;
 import com.hyunbennylog.api.repository.PostRepository;
 import com.hyunbennylog.api.request.PostCreate;
+import com.hyunbennylog.api.request.PostModification;
 import com.hyunbennylog.api.service.PostService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
@@ -196,6 +197,55 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.[0].content", is("내용입니다.30")))
                 .andExpect(jsonPath("$.[4].title", is("제목26")))
                 .andExpect(jsonPath("$.[4].content", is("내용입니다.26")))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("게시글 제목 수정")
+    void modifyPostTitle() throws Exception {
+        // given
+        Post post = Post.builder()
+                .title("제목입니다")
+                .content("내용입니다...")
+                .build();
+
+        postRepository.save(post);
+
+        PostModification postModi = PostModification.builder()
+                .title("제목수정")
+                .content("내용입니다...")
+                .build();
+
+        // expected
+        mockMvc.perform(patch("/posts/{postId}", post.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(postModi)))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+
+    @Test
+    @DisplayName("게시글 내용 수정")
+    void modifyPostContent() throws Exception {
+        // given
+        Post post = Post.builder()
+                .title("제목입니다")
+                .content("내용입니다...")
+                .build();
+
+        postRepository.save(post);
+
+        PostModification postModi = PostModification.builder()
+                .title("제목입니다.")
+                .content("내용수정했습니다. ")
+                .build();
+
+        // expected
+        mockMvc.perform(patch("/posts/{postId}", post.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(postModi)))
+                .andExpect(status().isOk())
                 .andDo(print());
     }
 

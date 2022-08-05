@@ -20,7 +20,8 @@ public class Post {
     private String content;
 
     @Builder
-    public Post(String title, String content) {
+    public Post(Long id, String title, String content) {
+        this.id = id;
         this.title = title;
         this.content = content;
     }
@@ -28,4 +29,15 @@ public class Post {
     /**
      * Entity에 서비스 정책을 '절대' 넣으면 안됨
      */
+
+    public void modify(PostEditor postEditor) {
+        title = postEditor.getTitle() != null ? postEditor.getTitle() : title;
+        content = postEditor.getContent() != null ? postEditor.getContent() : content;
+    }
+
+    public PostEditor.PostEditorBuilder toEditor() {
+        return PostEditor.builder()
+                .title(title)
+                .content(content);
+    }
 }

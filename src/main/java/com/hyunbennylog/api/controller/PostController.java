@@ -2,6 +2,7 @@ package com.hyunbennylog.api.controller;
 
 import com.hyunbennylog.api.domain.Post;
 import com.hyunbennylog.api.request.PostCreate;
+import com.hyunbennylog.api.request.PostModification;
 import com.hyunbennylog.api.request.PostSearch;
 import com.hyunbennylog.api.response.PostResponse;
 import com.hyunbennylog.api.service.PostService;
@@ -81,6 +82,12 @@ public class PostController {
         // yml에 기본설정값을 세팅해놔도 되고
         // @PageableDefault(size=5) 이런식으로도 사용가능
         return postService.getPostList(postSearch);
+    }
+
+    // 게시글 수정
+    @PatchMapping("/posts/{postId}")
+    public PostResponse modifyPost(@PathVariable Long postId, @RequestBody @Valid PostModification request){
+        return postService.modify(postId, request);
     }
 
 }

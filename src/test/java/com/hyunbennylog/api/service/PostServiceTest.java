@@ -3,6 +3,7 @@ package com.hyunbennylog.api.service;
 import com.hyunbennylog.api.domain.Post;
 import com.hyunbennylog.api.repository.PostRepository;
 import com.hyunbennylog.api.request.PostCreate;
+import com.hyunbennylog.api.request.PostModification;
 import com.hyunbennylog.api.request.PostSearch;
 import com.hyunbennylog.api.response.PostResponse;
 import org.junit.jupiter.api.Assertions;
@@ -102,4 +103,61 @@ class PostServiceTest {
         assertEquals("제목30", postList.get(0).getTitle());
         assertEquals("제목26", postList.get(4).getTitle());
     }
+
+    @Test
+    @DisplayName("게시글 제목 수정")
+    void modifyPostTitle() {
+        // given
+        Post post = Post.builder()
+                .title("제목원본")
+                .content("내용입니다아아아")
+                .build();
+
+        postRepository.save(post);
+
+        // when
+
+        PostModification postModi = PostModification.builder()
+                .title("제목수정")
+                .content("내용입니다아아아")
+                .build();
+
+        postService.modify(post.getId(), postModi);
+
+        // then
+        Post modifiedPost = postRepository.findById(post.getId()).orElseThrow(() -> new RuntimeException("해당 글은 존재하지 않습니다. id : " + post.getId()));
+
+        System.out.println("modifiedPost : " + modifiedPost.toString());
+
+        assertEquals("제목수정", modifiedPost.getTitle());
+    }
+
+    @Test
+    @DisplayName("게시글 내용 수정")
+    void modifyPostContent() {
+        // given
+        Post post = Post.builder()
+                .title("제목원본")
+                .content("내용입니다아아아")
+                .build();
+
+        postRepository.save(post);
+
+        // when
+
+        PostModification postModi = PostModification.builder()
+//                .title("제목원본")
+                .content("내용수정입니다아아아")
+                .build();
+
+        postService.modify(post.getId(), postModi);
+
+        // then
+        Post modifiedPost = postRepository.findById(post.getId()).orElseThrow(() -> new RuntimeException("해당 글은 존재하지 않습니다. id : " + post.getId()));
+
+        System.out.println("modifiedPost : " + modifiedPost.toString());
+
+        assertEquals("내용수정입니다아아아", modifiedPost.getContent());
+    }
+
 }
