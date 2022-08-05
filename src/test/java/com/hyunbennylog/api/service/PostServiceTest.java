@@ -1,6 +1,7 @@
 package com.hyunbennylog.api.service;
 
 import com.hyunbennylog.api.domain.Post;
+import com.hyunbennylog.api.exception.PostNotFoundException;
 import com.hyunbennylog.api.repository.PostRepository;
 import com.hyunbennylog.api.request.PostCreate;
 import com.hyunbennylog.api.request.PostModification;
@@ -58,8 +59,8 @@ class PostServiceTest {
 
 
     @Test
-    @DisplayName("글 단건 조회")
-    void findPost() {
+    @DisplayName("글 단건 조회 성공")
+    void findPostSuccess() {
         // given
         Post request = Post.builder()
                 .title("POST_TITLE1234567890")
@@ -75,6 +76,23 @@ class PostServiceTest {
         assertNotNull(response);
         assertEquals("POST_", response.getTitle());
         assertEquals("POST CONTENT", response.getContent());
+    }
+
+    @Test
+    @DisplayName("글 단건 조회 실패 - 존재하지 않는 게시글")
+    void findPostFail() {
+        // given
+        Post request = Post.builder()
+                .title("POST_TITLE1234567890")
+                .content("POST CONTENT")
+                .build();
+
+        postRepository.save(request);
+
+        // expected
+        assertThrows(PostNotFoundException.class, () ->
+                postService.getPost(request.getId() + 1L));
+
     }
 
     @Test
@@ -125,11 +143,33 @@ class PostServiceTest {
         postService.modify(post.getId(), postModi);
 
         // then
-        Post modifiedPost = postRepository.findById(post.getId()).orElseThrow(() -> new RuntimeException("해당 글은 존재하지 않습니다. id : " + post.getId()));
+        Post modifiedPost = postRepository.findById(post.getId()).orElseThrow(() -> new PostNotFoundException());
 
         System.out.println("modifiedPost : " + modifiedPost.toString());
 
         assertEquals("제목수정", modifiedPost.getTitle());
+    }
+
+    @Test
+    @DisplayName("게시글 제목 수정 실패 - 존재하지 않는 게시글")
+    void modifyPostTitleFail() {
+        // given
+        Post post = Post.builder()
+                .title("제목원본")
+                .content("내용입니다아아아")
+                .build();
+
+        postRepository.save(post);
+
+        PostModification postModi = PostModification.builder()
+                .title("제목수정")
+                .content("내용수정입니다아아아")
+                .build();
+
+        // expected
+        assertThrows(PostNotFoundException.class, () ->
+                postService.modify(post.getId() + 1L, postModi));
+
     }
 
     @Test
@@ -153,7 +193,7 @@ class PostServiceTest {
         postService.modify(post.getId(), postModi);
 
         // then
-        Post modifiedPost = postRepository.findById(post.getId()).orElseThrow(() -> new RuntimeException("해당 글은 존재하지 않습니다. id : " + post.getId()));
+        Post modifiedPost = postRepository.findById(post.getId()).orElseThrow(() -> new PostNotFoundException());
 
         System.out.println("modifiedPost : " + modifiedPost.toString());
 
@@ -161,8 +201,30 @@ class PostServiceTest {
     }
 
     @Test
-    @DisplayName("게시글 삭제")
-    void deletePost() {
+    @DisplayName("게시글 내용 수정 실패 - 존재하지 않는 게시글")
+    void modifyPostContentFail() {
+        // given
+        Post post = Post.builder()
+                .title("제목원본")
+                .content("내용입니다아아아")
+                .build();
+
+        postRepository.save(post);
+
+        PostModification postModi = PostModification.builder()
+//                .title("제목원본")
+                .content("내용수정입니다아아아")
+                .build();
+
+        // expected
+        assertThrows(PostNotFoundException.class, () ->
+                postService.modify(post.getId() + 1L, postModi));
+
+    }
+
+    @Test
+    @DisplayName("게시글 삭제 성공")
+    void deletePostSuccess() {
         // given
         Post post = Post.builder()
                 .title("제목원본")
@@ -179,6 +241,24 @@ class PostServiceTest {
         boolean empty = postRepository.findById(post.getId()).isEmpty();
         assertEquals(true, empty);
         assertEquals(0, postRepository.count());
+
+    }
+
+    @Test
+    @DisplayName("게시글 삭제 실패 - 존재하지 않는 게시글")
+    void deletePostFail() {
+        // given
+        Post post = Post.builder()
+                .title("제목원본")
+                .content("내용입니다아아아")
+                .build();
+
+        postRepository.save(post);
+
+        // expected
+        assertThrows(PostNotFoundException.class, () ->
+                postService.delete(post.getId() + 1L));
+
 
     }
 

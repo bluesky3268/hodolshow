@@ -2,6 +2,7 @@ package com.hyunbennylog.api.service;
 
 import com.hyunbennylog.api.domain.Post;
 import com.hyunbennylog.api.domain.PostEditor;
+import com.hyunbennylog.api.exception.PostNotFoundException;
 import com.hyunbennylog.api.repository.PostRepository;
 import com.hyunbennylog.api.request.PostCreate;
 import com.hyunbennylog.api.request.PostModification;
@@ -30,7 +31,7 @@ public class PostService {
     // 게시글 단건 조회
     public PostResponse getPost(Long postId) {
         Post findPost = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("해당글은 존재하지 않습니다."));
+                .orElseThrow(PostNotFoundException::new);
 
         return new PostResponse().entityToPostResponse(findPost);
     }
@@ -50,7 +51,7 @@ public class PostService {
     // 게시글 수정
     @Transactional
     public PostResponse modify(Long id, PostModification request) {
-        Post findPost = postRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 글은 존재하지 않습니다."));
+        Post findPost = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException());
         PostEditor.PostEditorBuilder postEditorBuilder = findPost.toEditor();
 
         PostEditor postEditor = postEditorBuilder.title(request.getTitle())
@@ -67,7 +68,7 @@ public class PostService {
     }
 
     public void delete(Long id) {
-        Post post = postRepository.findById(id).orElseThrow(() -> new IllegalArgumentException());
+        Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException());
 
         postRepository.delete(post);
     }
