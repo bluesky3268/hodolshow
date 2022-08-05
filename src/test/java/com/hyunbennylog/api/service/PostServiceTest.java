@@ -160,4 +160,26 @@ class PostServiceTest {
         assertEquals("내용수정입니다아아아", modifiedPost.getContent());
     }
 
+    @Test
+    @DisplayName("게시글 삭제")
+    void deletePost() {
+        // given
+        Post post = Post.builder()
+                .title("제목원본")
+                .content("내용입니다아아아")
+                .build();
+
+        postRepository.save(post);
+
+        // when
+
+        postService.delete(post.getId());
+
+        // then
+        boolean empty = postRepository.findById(post.getId()).isEmpty();
+        assertEquals(true, empty);
+        assertEquals(0, postRepository.count());
+
+    }
+
 }

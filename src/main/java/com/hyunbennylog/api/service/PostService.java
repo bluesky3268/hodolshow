@@ -66,5 +66,11 @@ public class PostService {
         return new PostResponse().entityToPostResponse(findPost);
     }
 
+    public void delete(Long id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new IllegalArgumentException());
+
+        postRepository.delete(post);
+    }
+
 
 }
