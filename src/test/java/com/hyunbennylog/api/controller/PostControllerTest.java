@@ -128,6 +128,25 @@ class PostControllerTest {
     }
 
     @Test
+    @DisplayName("게시글 등록 시 제목에 Hello World는 포함될 수 없음")
+    void titleCannotIncludeHelloWorld() throws Exception {
+        // when
+        PostCreate request = PostCreate.builder()
+                .title("Hello World")
+                .content("내용입니당!!")
+                .build();
+
+        String requestToJson = objectMapper.writeValueAsString(request);
+
+        mockMvc.perform(post("/posts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestToJson))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+
+    }
+
+    @Test
     @DisplayName("게시글 조회")
     void findPost() throws Exception {
         // given
@@ -145,6 +164,25 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.id").value(request.getId()))
                 .andExpect(jsonPath("$.title").value("게시글제목"))
                 .andExpect(jsonPath("$.content").value("게시글 내용"))
+                .andDo(print())
+        ;
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 게시글 조회")
+    void findPostNotExist() throws Exception {
+        // given
+        Post request = Post.builder()
+                .title("게시글제목1234567890")
+                .content("게시글 내용")
+                .build();
+
+        postRepository.save(request);
+
+        // when //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/posts/{postId}", request.getId()+1L)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
                 .andDo(print())
         ;
     }
@@ -224,6 +262,30 @@ class PostControllerTest {
                 .andDo(print());
     }
 
+    @Test
+    @DisplayName("존재하지 않는 게시글 제목 수정")
+    void modifyPostTitleNotExist() throws Exception {
+        // given
+        Post post = Post.builder()
+                .title("제목입니다")
+                .content("내용입니다...")
+                .build();
+
+        postRepository.save(post);
+
+        PostModification postModi = PostModification.builder()
+                .title("제목수정")
+                .content("내용입니다...")
+                .build();
+
+        // expected
+        mockMvc.perform(patch("/posts/{postId}", post.getId()+1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(postModi)))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
 
     @Test
     @DisplayName("게시글 내용 수정")
@@ -249,6 +311,30 @@ class PostControllerTest {
                 .andDo(print());
     }
 
+    @Test
+    @DisplayName("존재하지 않는 게시글 내용 수정")
+    void modifyPostContentNotExist() throws Exception {
+        // given
+        Post post = Post.builder()
+                .title("제목입니다")
+                .content("내용입니다...")
+                .build();
+
+        postRepository.save(post);
+
+        PostModification postModi = PostModification.builder()
+                .title("제목입니다.")
+                .content("내용수정했습니다. ")
+                .build();
+
+        // expected
+        mockMvc.perform(patch("/posts/{postId}", post.getId()+1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(postModi)))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
 
     @Test
     @DisplayName("게시글 삭제")
@@ -265,6 +351,24 @@ class PostControllerTest {
         mockMvc.perform(delete("/posts/{postId}", post.getId())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 게시글 삭제")
+    void deletePostNotExist() throws Exception {
+        // given
+        Post post = Post.builder()
+                .title("제목입니다")
+                .content("내용입니다...")
+                .build();
+
+        postRepository.save(post);
+
+        // expected
+        mockMvc.perform(delete("/posts/{postId}", post.getId()+1)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
                 .andDo(print());
     }
 

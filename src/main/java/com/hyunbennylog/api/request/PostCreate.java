@@ -1,6 +1,7 @@
 package com.hyunbennylog.api.request;
 
 import com.hyunbennylog.api.domain.Post;
+import com.hyunbennylog.api.exception.InvalidRequestException;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
@@ -22,6 +23,12 @@ public class PostCreate {
     public PostCreate(String title, String content) {
         this.title = title;
         this.content = content;
+    }
+
+    public void validate() {
+        if (title.contains("Hello World")) {
+            throw new InvalidRequestException("title", "제목에 Hello World는 포함될 수 없습니다.");
+        }
     }
 
     public Post toEntity() {

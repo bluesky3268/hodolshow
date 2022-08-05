@@ -1,6 +1,7 @@
 package com.hyunbennylog.api.controller;
 
 import com.hyunbennylog.api.domain.Post;
+import com.hyunbennylog.api.exception.InvalidRequestException;
 import com.hyunbennylog.api.request.PostCreate;
 import com.hyunbennylog.api.request.PostModification;
 import com.hyunbennylog.api.request.PostSearch;
@@ -55,6 +56,8 @@ public class PostController {
 //            log.info("fieldName : {}, errorMessage : {}", fieldName, errorMessage);
 //            return error;
 //        }
+
+        request.validate();
 
         postService.regist(request);
         /** POST요청에 대한 응답
