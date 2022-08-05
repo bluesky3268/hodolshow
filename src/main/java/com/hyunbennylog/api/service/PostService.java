@@ -3,6 +3,7 @@ package com.hyunbennylog.api.service;
 import com.hyunbennylog.api.domain.Post;
 import com.hyunbennylog.api.repository.PostRepository;
 import com.hyunbennylog.api.request.PostCreate;
+import com.hyunbennylog.api.request.PostSearch;
 import com.hyunbennylog.api.response.PostResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,10 +33,13 @@ public class PostService {
         return new PostResponse().entityToPostResponse(findPost);
     }
 
-    public List<PostResponse> getPostList(Pageable pageable) {
+    public List<PostResponse> getPostList(PostSearch postSearch) {
 //        Pageable pageable = PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "id"));
+//        return postRepository.findAll(pageable).stream().map(post -> new PostResponse().entityToPostResponse(post))
+//                .collect(Collectors.toList());
 
-        return postRepository.findAll(pageable).stream().map(post -> new PostResponse().entityToPostResponse(post))
+        return postRepository.getList(postSearch).stream()
+                .map(post -> new PostResponse().entityToPostResponse(post))
                 .collect(Collectors.toList());
 
     }

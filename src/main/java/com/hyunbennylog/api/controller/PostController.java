@@ -2,6 +2,7 @@ package com.hyunbennylog.api.controller;
 
 import com.hyunbennylog.api.domain.Post;
 import com.hyunbennylog.api.request.PostCreate;
+import com.hyunbennylog.api.request.PostSearch;
 import com.hyunbennylog.api.response.PostResponse;
 import com.hyunbennylog.api.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -75,11 +76,11 @@ public class PostController {
 
     // 리스트 조회
     @GetMapping("/posts")
-    public List<PostResponse> getPostList(Pageable pageable) {
+    public List<PostResponse> getPostList(@ModelAttribute PostSearch postSearch) {
         // size를 parameter로 넘겨받아도 되고
         // yml에 기본설정값을 세팅해놔도 되고
         // @PageableDefault(size=5) 이런식으로도 사용가능
-        return postService.getPostList(pageable);
+        return postService.getPostList(postSearch);
     }
 
 }

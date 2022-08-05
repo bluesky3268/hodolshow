@@ -12,10 +12,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,9 +39,6 @@ class PostControllerTest {
 
     @Autowired
     private PostRepository postRepository;
-
-    @Autowired
-    private PostService postService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -164,7 +163,32 @@ class PostControllerTest {
         postRepository.saveAll(request);
 
         // expected
-        mockMvc.perform(get("/posts?page=1&sort=id,desc")
+        mockMvc.perform(get("/posts?page=1&sort=id,desc&size=5")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(5)))
+                .andExpect(jsonPath("$.[0].title", is("제목30")))
+                .andExpect(jsonPath("$.[0].content", is("내용입니다.30")))
+                .andExpect(jsonPath("$.[4].title", is("제목26")))
+                .andExpect(jsonPath("$.[4].content", is("내용입니다.26")))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("게시글 목록 조회 - page=0일 때도 1페이지를 가져옴")
+    void getPostListPageEq0() throws Exception {
+        // given
+        List<Post> request = IntStream.range(1, 31)
+                .mapToObj(i -> Post.builder()
+                        .title("제목" + i)
+                        .content("내용입니다." + i)
+                        .build()
+                ).collect(Collectors.toList());
+
+        postRepository.saveAll(request);
+
+        // expected
+        mockMvc.perform(get("/posts?page=0&sort=id,desc&size=5")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()", is(5)))

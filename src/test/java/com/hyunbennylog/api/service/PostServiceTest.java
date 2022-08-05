@@ -3,6 +3,7 @@ package com.hyunbennylog.api.service;
 import com.hyunbennylog.api.domain.Post;
 import com.hyunbennylog.api.repository.PostRepository;
 import com.hyunbennylog.api.request.PostCreate;
+import com.hyunbennylog.api.request.PostSearch;
 import com.hyunbennylog.api.response.PostResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,7 +72,7 @@ class PostServiceTest {
 
         // then
         assertNotNull(response);
-        assertEquals("POST TITLE", response.getTitle());
+        assertEquals("POST_", response.getTitle());
         assertEquals("POST CONTENT", response.getContent());
     }
 
@@ -88,10 +89,13 @@ class PostServiceTest {
 
         postRepository.saveAll(requestPosts);
 
-        Pageable pageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"));
+//        Pageable pageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"));
 
         // when
-        List<PostResponse> postList = postService.getPostList(pageable);
+        List<PostResponse> postList = postService.getPostList( PostSearch.builder()
+                                                                .page(1)
+                                                                .size(5)
+                                                                .build());
 
         // then
         assertEquals(5, postList.size());
