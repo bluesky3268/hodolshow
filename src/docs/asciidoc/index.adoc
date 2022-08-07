@@ -1,0 +1,29 @@
+= API
+:doctype: book
+:icon: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+== 게시글 조회
+=== 요청
+include::{snippets}/postInquiry/http-request.adoc[]
+
+include::{snippets}/postInquiry/path-parameters.adoc[]
+
+=== 응답
+include::{snippets}/postInquiry/http-response.adoc[]
+
+include::{snippets}/postInquiry/response-fields.adoc[]
+
+
+== 게시글 등록
+
+=== 요청
+include::{snippets}/postRegist/http-request.adoc[]
+
+include::{snippets}/postRegist/request-fields.adoc[]
+
+=== 응답
+include::{snippets}/postRegist/http-response.adoc[]
