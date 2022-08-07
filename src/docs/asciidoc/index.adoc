@@ -27,3 +27,4 @@ include::{snippets}/postRegist/request-fields.adoc[]
 
 === 응답
 include::{snippets}/postRegist/http-response.adoc[]
+no
