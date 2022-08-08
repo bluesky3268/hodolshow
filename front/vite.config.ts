@@ -12,4 +12,14 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+
+  // vue.config.js 에서도 가능
+  server:{
+    proxy:{
+      "/hyunbennylog-api/posts": {
+        target: "http://localhost:8080",
+        rewrite: (path) => path.replace(/^\/hyunbennylog-api/, ""),
+      }
+    },
+  }
 });
