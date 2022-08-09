@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import RegistView from "../views/RegistView.vue";
+import ReadView from "../views/ReadView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,6 +16,12 @@ const router = createRouter({
       name: "regist",
       component: RegistView,
     },
+    {
+      path: "/read/:postId",
+      name: "read",
+      component: ReadView,
+      props: true,
+    }
   ],
 });
 
