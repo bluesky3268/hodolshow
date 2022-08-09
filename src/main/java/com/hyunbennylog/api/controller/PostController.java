@@ -39,6 +39,7 @@ public class PostController {
     // 게시글 등록
     @PostMapping("/posts")
     public void post(@RequestBody @Valid PostCreate request) {
+        log.info("request : {}", request.toString());
         // 데이터 검증 이유
         // 1. 클라이언트에서 실수로 값을 안보내거나 잘못된 값을 보낼 수 있음
         // 2. 버그로 인해 값이 누락될 수있음
@@ -75,6 +76,7 @@ public class PostController {
     // 단건 조회
     @GetMapping("/posts/{postId}")
     public PostResponse getPost(@PathVariable Long postId) {
+        log.info("postId : {}", postId);
        return postService.getPost(postId);
     }
 
@@ -90,11 +92,13 @@ public class PostController {
     // 게시글 수정
     @PatchMapping("/posts/{postId}")
     public PostResponse modifyPost(@PathVariable Long postId, @RequestBody @Valid PostModification request){
+        log.info("request : {}", request.toString());
         return postService.modify(postId, request);
     }
 
     @DeleteMapping("/posts/{postId}")
     public void deletePost(@PathVariable Long postId){
+        log.info("postId : {}", postId);
         postService.delete(postId);
     }
 

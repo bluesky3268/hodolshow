@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import RegistView from "../views/RegistView.vue";
 import ReadView from "../views/ReadView.vue";
+import ModifyView from "../views/ModifyView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,7 +22,13 @@ const router = createRouter({
       name: "read",
       component: ReadView,
       props: true,
-    }
+    },
+    {
+      path: "/modify/:postId",
+      name: "modify",
+      component: ModifyView,
+      props: true,
+    },
   ],
 });
 

@@ -31,4 +31,12 @@ public class PostModification {
                 .content(content)
                 .build();
     }
+
+    @Override
+    public String toString() {
+        return "PostModification{" +
+                "title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                '}';
+    }
 }

@@ -23,6 +23,7 @@ const register = function(){
 </script>
 
 <template>
+  <h1>등록화면</h1>
   <div>
     <el-input v-model="title" type="text" placeholder="제목을 입력해주세요."/>
   </div>

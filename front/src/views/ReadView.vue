@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {defineProps, onMounted, ref} from "vue";
 import axios from "axios";
+import router from "@/router";
 
 const props = defineProps({
   postId: {
@@ -15,6 +16,10 @@ const post = ref({
   content : "",
 });
 
+
+const moveToEdit = () => {
+  router.push({name : "modify", params:{postId: props.postId}});
+}
 onMounted(() => {
  axios.get(`/hyunbennylog-api/posts/${props.postId}`)
   .then((response) => {
@@ -27,6 +32,8 @@ onMounted(() => {
   <div>{{post.title}}</div>
   <h2>내용</h2>
   <div>{{post.content}}</div>
+
+  <el-button type="warning" @click="moveToEdit()">수정</el-button>
 </template>
 
 
