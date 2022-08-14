@@ -25,7 +25,7 @@ public class PostResponse {
     public PostResponse entityToPostResponse(Post post) {
         return PostResponse.builder()
                 .id(post.getId())
-                .title(post.getTitle().substring(0, Math.min(post.getTitle().length(), 5)))
+                .title(post.getTitle().substring(0, Math.min(post.getTitle().length(), 10)))
                 .content(post.getContent())
                 .build();
 

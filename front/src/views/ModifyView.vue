@@ -41,8 +41,8 @@ const modify = () => {
     <el-input v-model="post.content" type="textarea" rows="15"/>
   </div>
 
-  <div class="mt-2">
-    <el-button type="warning" @click="modify()">수정완료</el-button>
+  <div class="mt-2 d-flex justify-content-end">
+      <el-button type="warning" @click="modify()">수정완료</el-button>
   </div>
 </template>
 

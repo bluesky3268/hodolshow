@@ -162,7 +162,7 @@ class PostControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(request.getId()))
-                .andExpect(jsonPath("$.title").value("게시글제목"))
+                .andExpect(jsonPath("$.title").value("게시글제목12345"))
                 .andExpect(jsonPath("$.content").value("게시글 내용"))
                 .andDo(print())
         ;

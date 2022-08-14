@@ -75,7 +75,7 @@ class PostServiceTest {
 
         // then
         assertNotNull(response);
-        assertEquals("POST_", response.getTitle());
+        assertEquals("POST_TITLE", response.getTitle());
         assertEquals("POST CONTENT", response.getContent());
     }
 
