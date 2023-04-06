@@ -1,5 +1,6 @@
 package com.hyunbennylog.api.controller;
 
+import com.hyunbennylog.api.config.data.UserSession;
 import com.hyunbennylog.api.domain.Post;
 import com.hyunbennylog.api.exception.InvalidRequestException;
 import com.hyunbennylog.api.request.PostCreate;
@@ -36,31 +37,30 @@ public class PostController {
 
     private final PostService postService;
 
+    @GetMapping("/foo")
+    public String foo(UserSession userSession) {
+        log.info(">>> username : {}", userSession.name);
+        return userSession.name;
+    }
+
+    @GetMapping("/bar")
+    public String bar() {
+        return "인증이 필요없는 API";
+    }
+
     // 게시글 등록
     @PostMapping("/posts")
-    public void post(@RequestBody @Valid PostCreate request) {
+    public void post(@RequestBody @Valid PostCreate request, @RequestHeader String authorization) {
         log.info("request : {}", request.toString());
-        // 데이터 검증 이유
-        // 1. 클라이언트에서 실수로 값을 안보내거나 잘못된 값을 보낼 수 있음
-        // 2. 버그로 인해 값이 누락될 수있음
-        // 3. 해킹하여 값을 조작하여 보낼 수 있음
-        // 4. DB에 저장할 때 의도치 않은 오류가 발생할 수 있음
+        /**
+         * 인증 정보를 받는 방법을 생각해보자
+         * 1. GET parameter
+         * 2. POST body -> 우리가 기존에 설계한 PostCreate의 변경이 있어야 하므로 제외
+         * 3. Header
+         */
+            request.validate();
+            postService.regist(request);
 
-//        if (bindingResult.hasErrors()) {
-//            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-//            FieldError firstFieldError = fieldErrors.get(0);
-//            String fieldName = firstFieldError.getField();
-//            String errorMessage = firstFieldError.getDefaultMessage();
-//
-//            Map<String, String> error = new HashMap<>();
-//            error.put(fieldName, errorMessage);
-//            log.info("fieldName : {}, errorMessage : {}", fieldName, errorMessage);
-//            return error;
-//        }
-
-        request.validate();
-
-        postService.regist(request);
         /** POST요청에 대한 응답
            1. 은 200, 201을 주로 사용함.
            2-1. 클라이언트의 요청에 의해 저장한 데이터를 그대로 주는 경우,
