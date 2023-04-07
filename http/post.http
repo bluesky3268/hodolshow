@@ -2,7 +2,8 @@
 
 GET http://localhost:8080/foo
 Content-Type: application/json
-Authorization: hyunbenny
+Cookie: HYUNBENNYLOG_SESSION_ID=c71feeb7-86bc-46e5-afe8-7ff775ad1e8f
+#Authorization: hyunbenny
 #Authorization: {{commonAUthorization}}
 
 
