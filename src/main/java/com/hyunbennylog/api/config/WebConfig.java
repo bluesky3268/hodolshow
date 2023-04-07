@@ -1,5 +1,7 @@
 package com.hyunbennylog.api.config;
 
+import com.hyunbennylog.api.repository.SessionRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +16,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.List;
 
 @Configuration
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
+
+    private final SessionRepository sessionRepository;
 
     @Bean
     public MessageSource messageSource() {
@@ -47,7 +52,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(new AuthResolver());
+        resolvers.add(new AuthResolver(sessionRepository));
     }
 
     // CORS를 서버에서 해결
