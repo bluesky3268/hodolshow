@@ -2,6 +2,7 @@ package com.hyunbennylog.api.controller;
 
 import com.hyunbennylog.api.config.AppConfig;
 import com.hyunbennylog.api.request.LoginRequest;
+import com.hyunbennylog.api.request.SignUpRequest;
 import com.hyunbennylog.api.response.SessionResponse;
 import com.hyunbennylog.api.service.AuthService;
 import io.jsonwebtoken.Jwts;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.crypto.SecretKey;
@@ -24,6 +26,7 @@ import java.util.Date;
 
 @Slf4j
 @RestController
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -31,7 +34,7 @@ public class AuthController {
     private final AppConfig appConfig;
 
 
-    @PostMapping("/auth/login")
+    @PostMapping("/login")
     public SessionResponse login(@RequestBody LoginRequest request) {
         // 요청받은 id와 비밀번호(json형식)을 데이터 베이스에서 조회한 후 일치할 경우 토큰 리턴
         // JWT
@@ -49,6 +52,11 @@ public class AuthController {
         return new SessionResponse(jws);
     }
 
+    @PostMapping("/sign-up")
+    public void signup(@RequestBody SignUpRequest request) {
+        // signUpRequest -> dto 레이어를 나눔에 따라 dto 변환이 필요함
+        authService.signUp(request);
+    }
 
 
 }
