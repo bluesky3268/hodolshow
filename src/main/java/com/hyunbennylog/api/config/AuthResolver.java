@@ -4,8 +4,13 @@ import com.hyunbennylog.api.config.data.UserSession;
 import com.hyunbennylog.api.domain.Session;
 import com.hyunbennylog.api.exception.UnAuthorizedException;
 import com.hyunbennylog.api.repository.SessionRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -20,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 public class AuthResolver implements HandlerMethodArgumentResolver {
 
     private final SessionRepository sessionRepository;
+    private final AppConfig appConfig;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -28,8 +34,6 @@ public class AuthResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-//        String accessToken = webRequest.getHeader("Authorization");
-//        if(accessToken == null || accessToken.equals("")) throw new UnAuthorizedException();
 
         HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
         if (request == null) {
@@ -37,18 +41,30 @@ public class AuthResolver implements HandlerMethodArgumentResolver {
             throw new UnAuthorizedException();
         }
 
-        Cookie[] cookies = request.getCookies();
-        if (cookies.length == 0) {
-            log.error("cookies arr length is 0");
+//        // DB 사용자 확인 작업
+//        Session findSession = sessionRepository.findByAccessToken(accessToken)
+//                .orElseThrow(() -> new UnAuthorizedException());
+
+        // JWT 사용
+        String jws = webRequest.getHeader("Authorization");
+        if(jws == null || jws.equals("")) throw new UnAuthorizedException();
+
+        // jwt 복호화
+        try {
+            Jws<Claims> claims = Jwts.parserBuilder()
+                    .setSigningKey(appConfig.getJwt_key())
+                    .build()
+                    .parseClaimsJws(jws);
+
+            // 이제 jwt를 신뢰할 수 있음
+            String userId = claims.getBody().getSubject();
+            return new UserSession(Long.parseLong(userId));
+
+        } catch (JwtException e) {
             throw new UnAuthorizedException();
         }
 
-        String accessToken = cookies[0].getValue();
-
-        // DB 사용자 확인 작업
-        Session findSession = sessionRepository.findByAccessToken(accessToken)
-                .orElseThrow(() -> new UnAuthorizedException());
-
-        return new UserSession(findSession.getId());
+//        return new UserSession(findSession.getId());
     }
+
 }

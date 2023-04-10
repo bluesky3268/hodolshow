@@ -24,3 +24,6 @@ spring:
   sql:
     init:
       mode: always
+
+hyunbennylog:
+  jwt_key: "Ql0VcZZXOQq/HpyAIuNVkAOgqIWSA54gJa6vWT38m90="

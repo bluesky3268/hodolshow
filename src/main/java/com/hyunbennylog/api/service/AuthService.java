@@ -18,14 +18,13 @@ public class AuthService {
     private final UserRepository userRepository;
 
     @Transactional
-    public String login(LoginRequest request) {
+    public Long login(LoginRequest request) {
         User findUser = userRepository.findByEmailAndPassword(request.getEmail(), request.getPassword())
                 .orElseThrow(() -> new InvalidLoginInfoException());
 
         // TODO : Bcrypt Scrypt
 
-        Session session = findUser.addSession();
-        return session.getAccessToken();
+        return findUser.getId();
     }
 
 }

@@ -20,6 +20,7 @@ import java.util.List;
 public class WebConfig implements WebMvcConfigurer {
 
     private final SessionRepository sessionRepository;
+    private final AppConfig appConfig;
 
     @Bean
     public MessageSource messageSource() {
@@ -52,7 +53,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(new AuthResolver(sessionRepository));
+        resolvers.add(new AuthResolver(sessionRepository, appConfig));
     }
 
     // CORS를 서버에서 해결
