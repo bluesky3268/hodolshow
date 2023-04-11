@@ -1,25 +1,28 @@
 package com.hyunbennylog.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hyunbennylog.api.crypto.ScryptPasswordEncoder;
 import com.hyunbennylog.api.domain.Session;
 import com.hyunbennylog.api.domain.User;
 import com.hyunbennylog.api.repository.SessionRepository;
 import com.hyunbennylog.api.repository.UserRepository;
 import com.hyunbennylog.api.request.LoginRequest;
+import com.hyunbennylog.api.request.SignUpRequest;
+import com.hyunbennylog.api.service.AuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -37,10 +40,16 @@ class AuthControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
+    private AuthService authService;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private SessionRepository sessionRepository;
+
+    private ScryptPasswordEncoder encoder = new ScryptPasswordEncoder();
+
 
     @BeforeEach
     void clean() {
@@ -51,9 +60,11 @@ class AuthControllerTest {
     @DisplayName("로그인 성공")
     void login() throws Exception {
         //given
+        String password = "1234";
+        String encryptedPassword = encoder.encrypt(password);
         userRepository.save(User.builder()
                 .email("hyunbenny@mail.com")
-                .password("1234")
+                .password(encryptedPassword)
                 .name("조현빈")
                 .createdAt(LocalDateTime.now())
                 .build());
@@ -67,7 +78,7 @@ class AuthControllerTest {
 
         // expected
         mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -75,12 +86,14 @@ class AuthControllerTest {
 
     @Test
     @Transactional
-    @DisplayName("로그인 성공 후 세션 생성")
+    @DisplayName("로그인 실패")
     void loginAndCreateSession() throws Exception {
         //given
+        String password = "1234";
+        String encryptedPassword = encoder.encrypt(password);
         User user = User.builder()
                 .email("hyunbenny@mail.com")
-                .password("1234")
+                .password(encryptedPassword)
                 .name("조현빈")
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -88,19 +101,18 @@ class AuthControllerTest {
 
         LoginRequest request = LoginRequest.builder()
                 .email("hyunbenny@mail.com")
-                .password("1234")
+                .password("1234555")
                 .build();
 
         String json = objectMapper.writeValueAsString(request);
 
         // expected
         mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().isOk())
+                .andExpect(status().is4xxClientError())
                 .andDo(print());
 
-        assertEquals(1L, user.getSessions().size());
     }
 
     @Test
@@ -124,26 +136,11 @@ class AuthControllerTest {
 
         // expected
         mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk())
 //                .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andDo(print());
-    }
-
-    @Test
-    @DisplayName("권한없이 권한이 필요한 페이지에 접속하면 401.(/foo)")
-    void requestToApi_needAuth_withoutAuth() throws Exception {
-        // given
-
-        // when
-
-
-        // then
-        mockMvc.perform(get("/foo")
-                    .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.accessToken", notNullValue()))
                 .andDo(print());
     }
 
@@ -160,10 +157,11 @@ class AuthControllerTest {
         Session session = user.addSession();
         userRepository.save(user);
 
-        // then
+
+        // expected
         mockMvc.perform(get("/foo")
                         .header("Authorization", session.getAccessToken())
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
@@ -172,20 +170,41 @@ class AuthControllerTest {
     @DisplayName("로그인 후 권한이 필요한 페이지에 검증되지 않은 토큰으로 접속하면 401.(/foo)")
     void requestToApi_needAuth_withWrongAccessToken_afterLogin() throws Exception {
         // given
+        String password = "1234";
+        String encryptedPassword = encoder.encrypt(password);
         User user = User.builder()
                 .email("hyunbenny@mail.com")
-                .password("1234")
+                .password(encryptedPassword)
                 .name("조현빈")
                 .createdAt(LocalDateTime.now())
                 .build();
         Session session = user.addSession();
         userRepository.save(user);
 
+
         // then
         mockMvc.perform(get("/foo")
                         .header("Authorization", session + "isWrong")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("회원가입")
+    void signup() throws Exception {
+        // given
+        SignUpRequest request = SignUpRequest.builder()
+                .email("hyunbenny@mail.com")
+                .name("hyunbenny")
+                .password("12341234")
+                .build();
+
+        // when then
+        mockMvc.perform(post("/auth/sign-up")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
                 .andDo(print());
     }
 

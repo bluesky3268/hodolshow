@@ -1,5 +1,7 @@
 package com.hyunbennylog.api.service;
 
+import com.hyunbennylog.api.crypto.PasswordEncoder;
+import com.hyunbennylog.api.crypto.ScryptPasswordEncoder;
 import com.hyunbennylog.api.domain.User;
 import com.hyunbennylog.api.exception.InvalidLoginInfoException;
 import com.hyunbennylog.api.exception.AlreadyUserExistException;
@@ -19,13 +21,14 @@ import java.util.Optional;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public Long login(LoginRequest request) {
-        User findUser = userRepository.findByEmailAndPassword(request.getEmail(), request.getPassword())
-                .orElseThrow(() -> new InvalidLoginInfoException());
+        User findUser = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new InvalidLoginInfoException());
 
-        // TODO : Bcrypt Scrypt
+        boolean matches = passwordEncoder.matches(request.getPassword(), findUser.getPassword());
+        if (!matches) throw new InvalidLoginInfoException();
 
         return findUser.getId();
     }
@@ -34,6 +37,9 @@ public class AuthService {
     public void signUp(SignUpRequest request) {
         Optional<User> optionalUser = userRepository.findByEmail(request.getEmail());
         if (optionalUser.isPresent()) throw new AlreadyUserExistException();
+
+        String encryptedPassword = passwordEncoder.encrypt(request.getPassword());
+        request.setPassword(encryptedPassword);
 
         userRepository.save(request.toEntity());
     }
